@@ -161,10 +161,9 @@ class BittMappEditor {
     _drawGrid () {
 
         this._context.fillStyle = "#FFFFFF";
-        this._context.strokeStyle = "#FF0000";
+        this._context.strokeStyle = "#CCCCCC";
         this._context.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
 
-        this._context.strokeStyle = "#FF0000";
         this._context.beginPath();
         this._context.moveTo(0, 0);
         this._context.lineTo(this.canvasWidth, 0);
