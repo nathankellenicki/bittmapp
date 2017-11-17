@@ -1,0 +1,13 @@
+{
+  "name": "bittmapp",
+  "version": "0.0.1",
+  "description": "BittMapp - A bitmap image editor",
+  "scripts": {
+    "build": "tsc"
+  },
+  "author": "Nathan Kunicki <me@nathankunicki.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^2.6.1"
+  }
+}
