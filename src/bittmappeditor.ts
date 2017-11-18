@@ -72,7 +72,7 @@ class BittMappEditor {
 
         this._context = this.canvas.getContext("2d") as CanvasRenderingContext2D;
 
-        const deviceRatio: number = window.devicePixelRatio;
+        const deviceRatio: number = window.devicePixelRatio || 1;
         const backingStoreRatio: number = (this._context as any).backingStorePixelRatio as number || 1;
 
         this._scale = deviceRatio / backingStoreRatio;
