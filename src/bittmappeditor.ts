@@ -211,8 +211,6 @@ class BittMappEditor {
 
     _drawPixels (): void {
 
-        console.log(this.width);
-
         this._context.fillStyle = "#000000";
         this._context.strokeStyle = "#FFFFFFF";
 
