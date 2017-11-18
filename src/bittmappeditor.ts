@@ -105,14 +105,14 @@ class BittMappEditor {
 
 
     setPixel (x: number, y: number) {
-        const byte: number = ((y * 4) + Math.floor(x / 8)),
+        const byte: number = ((y * (this._width / 8)) + Math.floor(x / 8)),
             mask: number = 1 << (x % 8);
         this._data[byte] = this._data[byte] |= mask;
     }
 
 
     unsetPixel (x: number, y: number) {
-        const byte: number = ((y * 4) + Math.floor(x / 8)),
+        const byte: number = ((y * (this._width / 8)) + Math.floor(x / 8)),
             mask: number = 1 << (x % 8);
         this._data[byte] = this._data[byte] &= ~mask;
     }
@@ -207,7 +207,7 @@ class BittMappEditor {
         for (let i: number = 0; i < this._height; i++) {
             for (let j: number = 0; j < (this._width / 8); j++) {
 
-                let byte: number = this._data[(i * 4) + j];
+                let byte: number = this._data[(i * (this._width / 8)) + j];
 
                 for (let k: number = 0; k < 8; k++) {
                     if (byte & 1) {
