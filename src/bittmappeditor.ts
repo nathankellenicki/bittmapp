@@ -104,25 +104,30 @@ class BittMappEditor {
     }
 
 
-    setPixel (x: number, y: number) {
+    setPixel (x: number, y: number): void {
         const byte: number = ((y * (this._width / 8)) + Math.floor(x / 8)),
             mask: number = 1 << (x % 8);
         this._data[byte] = this._data[byte] |= mask;
     }
 
 
-    unsetPixel (x: number, y: number) {
+    unsetPixel (x: number, y: number): void {
         const byte: number = ((y * (this._width / 8)) + Math.floor(x / 8)),
             mask: number = 1 << (x % 8);
         this._data[byte] = this._data[byte] &= ~mask;
     }
 
 
-    resize (width: number = this._width, height: number = this._height) {
+    resize (width: number = this._width, height: number = this._height): void {
         this._data = new Uint8Array((width / 8) * height);
         this._pixelWidth = this.canvasWidth / this._width;
         this._pixelHeight = this.canvasHeight / this._height;
         this._redraw();
+    }
+
+
+    get height (): number {
+        return this._height;
     }
 
 
@@ -131,12 +136,17 @@ class BittMappEditor {
     }
 
 
+    get width (): number {
+        return this._width;
+    }
+
+
     set width (width: number) {
         this.resize(width, this._height);
     }
 
     
-    _handleMouseEvent (event: MouseEvent, button: number) {
+    _handleMouseEvent (event: MouseEvent, button: number): void {
 
         const pixelX: number = Math.floor(event.offsetX / this._pixelWidth),
             pixelY: number = Math.floor(event.offsetY / this._pixelHeight);
@@ -152,13 +162,13 @@ class BittMappEditor {
     }
 
 
-    _redraw () {
+    _redraw (): void {
         this._drawGrid();
         this._drawPixels();
     }
 
 
-    _drawGrid () {
+    _drawGrid (): void {
 
         this._context.fillStyle = "#FFFFFF";
         this._context.strokeStyle = "#CCCCCC";
@@ -199,7 +209,9 @@ class BittMappEditor {
     }
 
 
-    _drawPixels () {
+    _drawPixels (): void {
+
+        console.log(this.width);
 
         this._context.fillStyle = "#000000";
         this._context.strokeStyle = "#FFFFFFF";

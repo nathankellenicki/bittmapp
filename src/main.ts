@@ -1,4 +1,4 @@
-window.onload = function () {
+window.onload = function (): void {
 
     let editor: BittMappEditor = new BittMappEditor({
         canvas: <HTMLCanvasElement> document.getElementById("editor"),
