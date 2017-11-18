@@ -18,8 +18,8 @@ class BittMappEditor {
 
     public canvasWidth: number;
     public canvasHeight: number;
+    public canvas: HTMLCanvasElement;
 
-    private _canvas: HTMLCanvasElement;
     private _context: CanvasRenderingContext2D;
 
     private _width: number;
@@ -41,7 +41,7 @@ class BittMappEditor {
         options = options || {};
 
         if (options.canvas) {
-            this._canvas = options.canvas;
+            this.canvas = options.canvas;
         } else {
             throw new Error("BittMappEditor must be initialized with a canvas.");
         }
@@ -70,7 +70,7 @@ class BittMappEditor {
             throw new Error("BittMappEditor must be constructed with a height.");
         }
 
-        this._context = this._canvas.getContext("2d") as CanvasRenderingContext2D;
+        this._context = this.canvas.getContext("2d") as CanvasRenderingContext2D;
 
         const deviceRatio: number = window.devicePixelRatio;
         const backingStoreRatio: number = (this._context as any).backingStorePixelRatio as number || 1;
@@ -78,32 +78,32 @@ class BittMappEditor {
         this._scale = deviceRatio / backingStoreRatio;
         this._deviceRatio = deviceRatio;
 
-        this._canvas.width = this.canvasWidth * this._scale;
-        this._canvas.height = this.canvasHeight * this._scale;
-        this._canvas.style.width = `${this.canvasWidth}px`;
-        this._canvas.style.height = `${this.canvasHeight}px`;
+        this.canvas.width = this.canvasWidth * this._scale;
+        this.canvas.height = this.canvasHeight * this._scale;
+        this.canvas.style.width = `${this.canvasWidth}px`;
+        this.canvas.style.height = `${this.canvasHeight}px`;
 
-        this._context.setTransform(this._scale, 0, 0, this._scale, 0, 0);
+        this._context.scale(this._scale, this._scale);
 
         this.resize();
 
-        this._canvas.addEventListener("contextmenu", (event) => {
+        this.canvas.addEventListener("contextmenu", (event) => {
             event.preventDefault();
         });
 
-        this._canvas.addEventListener("mousedown", (event) => {
+        this.canvas.addEventListener("mousedown", (event) => {
             this._mouseDown = true;
             this._mouseButton = event.button as MouseButton;
             this._handleMouseEvent(event, this._mouseButton);
         });
 
-        this._canvas.addEventListener("mousemove", (event) => {
+        this.canvas.addEventListener("mousemove", (event) => {
             if (this._mouseDown) {
                 this._handleMouseEvent(event, this._mouseButton);
             }
         });
 
-        this._canvas.addEventListener("mouseup", (event) => {
+        this.canvas.addEventListener("mouseup", (event) => {
             this._mouseDown = false;
         });
 
