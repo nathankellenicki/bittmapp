@@ -1,11 +1,11 @@
-window.onload = function (): void {
+window.onload = (): void => {
 
-    let editor: BittMappEditor = new BittMappEditor({
-        canvas: <HTMLCanvasElement> document.getElementById("editor"),
-        canvasWidth: 640,
+    const editor: BittMappEditor = new BittMappEditor({
+        canvas: document.getElementById("editor") as HTMLCanvasElement,
         canvasHeight: 640,
-        width: 32,
-        height: 32
+        canvasWidth: 640,
+        height: 32,
+        width: 32
     });
 
 };
