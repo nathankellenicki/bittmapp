@@ -119,7 +119,7 @@ class BittMappEditor {
             this._selectionEndX = this._selectionStartX + 1;
             this._selectionEndY = this._selectionStartY + 1;
             // NK: Only wipe selection if Ctrl isn't pressed
-            this._selection = new Uint8Array((this._width / 8) * this._height);
+            this._selection.fill(0x0);
             this._handleMouseEvent(event, this._mouseButton);
         });
 
@@ -141,14 +141,14 @@ class BittMappEditor {
 
 
     public pencilMode () {
-        this._selection = new Uint8Array((this._width / 8) * this._height);
+        this._selection.fill(0x0);
         this._editorMode = Mode.PENCIL;
         this._redraw();
     }
 
 
     public eraserMode () {
-        this._selection = new Uint8Array((this._width / 8) * this._height);
+        this._selection.fill(0x0);
         this._editorMode = Mode.ERASER;
         this._redraw();
     }
@@ -193,7 +193,7 @@ class BittMappEditor {
 
 
     public deselectAll (): void {
-        this._selection = new Uint8Array((this._width / 8) * this._height);
+        this._selection.fill(0x0);
     }
 
 
@@ -293,12 +293,17 @@ class BittMappEditor {
                 mouseX = this._calculateXFromMouseCoords(event.offsetX, Math.ceil);
                 mouseY = this._calculateYFromMouseCoords(event.offsetY, Math.ceil);
 
-                this._selection = new Uint8Array((this._width / 8) * this._height);
+                this._selection.fill(0x0);
                 this._selectionEndX = mouseX;
                 this._selectionEndY = mouseY;
 
-                for (let x: number = this._selectionStartX; x < this._selectionEndX; x++) {
-                    for (let y: number = this._selectionStartY; y < this._selectionEndY; y++) {
+                const startX: number = this._selectionEndX > this._selectionStartX ? this._selectionStartX : this._selectionEndX - 1;
+                const startY: number = this._selectionEndY > this._selectionStartY ? this._selectionStartY : this._selectionEndY - 1;
+                const endX: number = this._selectionEndX > this._selectionStartX ? this._selectionEndX : this._selectionStartX + 1;
+                const endY: number = this._selectionEndY > this._selectionStartY ? this._selectionEndY : this._selectionStartY + 1;
+
+                for (let x: number = startX; x < endX; x++) {
+                    for (let y: number = startY; y < endY; y++) {
                         this.selectPixel(x, y);
                     }
                 }
