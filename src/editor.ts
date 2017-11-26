@@ -145,7 +145,6 @@ class BittMappEditor {
             this._selectionStartY = this._calculateYFromMouseCoords(event.offsetY);
             this._selectionEndX = this._selectionStartX + 1;
             this._selectionEndY = this._selectionStartY + 1;
-            // NK: Only wipe selection if Ctrl isn't pressed
             if (!this._shiftDown) {
                 this._selection.fill(0x0);
             }
@@ -318,7 +317,6 @@ class BittMappEditor {
                 break;
             case Mode.SELECTION:
 
-                // Only do this if Ctrl isn't pressed
                 if (!this._shiftDown) {
                     mouseX = this._calculateXFromMouseCoords(event.offsetX, Math.ceil);
                     mouseY = this._calculateYFromMouseCoords(event.offsetY, Math.ceil);
