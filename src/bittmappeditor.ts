@@ -143,17 +143,20 @@ class BittMappEditor {
     public pencilMode () {
         this._selection = new Uint8Array((this._width / 8) * this._height);
         this._editorMode = Mode.PENCIL;
+        this._redraw();
     }
 
 
     public eraserMode () {
         this._selection = new Uint8Array((this._width / 8) * this._height);
         this._editorMode = Mode.ERASER;
+        this._redraw();
     }
 
 
     public selectionMode () {
         this._editorMode = Mode.SELECTION;
+        this._redraw();
     }
 
 
