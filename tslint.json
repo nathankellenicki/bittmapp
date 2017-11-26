@@ -9,6 +9,9 @@
         "space-before-function-paren": false,
         "no-bitwise": false,
         "trailing-comma": false,
+        "max-line-length": false,
+        "prefer-for-of": false,
+        "typedef": true,
         "variable-name": [true, "ban-keywords", "check-format", "allow-leading-underscore"]
     },
     "rulesDirectory": []

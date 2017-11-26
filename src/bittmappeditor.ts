@@ -13,6 +13,13 @@ enum MouseButton {
 }
 
 
+enum Mode {
+    PENCIL = 0,
+    ERASER = 1,
+    SELECTION = 2
+}
+
+
 class BittMappEditor {
 
 
@@ -33,7 +40,17 @@ class BittMappEditor {
     private _mouseDown: boolean = false;
     private _mouseButton: MouseButton;
 
+    private _selectionStartX: number = 0;
+    private _selectionStartY: number = 0;
+    private _selectionEndX: number = 0;
+    private _selectionEndY: number = 0;
+
+    private _editorMode: Mode = Mode.PENCIL;
+
+    private _downloadHelper: HTMLAnchorElement;
+
     private _data: Uint8Array;
+    private _selection: Uint8Array;
 
 
     constructor (options: IBittMappEditorConstructorOptions) {
@@ -85,6 +102,9 @@ class BittMappEditor {
 
         this._context.scale(this._scale, this._scale);
 
+        this._data = new Uint8Array((this._width / 8) * this._height);
+        this._selection = new Uint8Array((this._width / 8) * this._height);
+
         this.resize();
 
         this.canvas.addEventListener("contextmenu", (event) => {
@@ -94,6 +114,12 @@ class BittMappEditor {
         this.canvas.addEventListener("mousedown", (event) => {
             this._mouseDown = true;
             this._mouseButton = event.button as MouseButton;
+            this._selectionStartX = this._calculateXFromMouseCoords(event.offsetX);
+            this._selectionStartY = this._calculateYFromMouseCoords(event.offsetY);
+            this._selectionEndX = this._selectionStartX + 1;
+            this._selectionEndY = this._selectionStartY + 1;
+            // NK: Only wipe selection if Ctrl isn't pressed
+            this._selection = new Uint8Array((this._width / 8) * this._height);
             this._handleMouseEvent(event, this._mouseButton);
         });
 
@@ -107,28 +133,90 @@ class BittMappEditor {
             this._mouseDown = false;
         });
 
+        this._downloadHelper = document.createElement("a");
+        document.body.appendChild(this._downloadHelper);
+        (this._downloadHelper as any).style = "display: none";
+
+    }
+
+
+    public pencilMode () {
+        this._selection = new Uint8Array((this._width / 8) * this._height);
+        this._editorMode = Mode.PENCIL;
+    }
+
+
+    public eraserMode () {
+        this._selection = new Uint8Array((this._width / 8) * this._height);
+        this._editorMode = Mode.ERASER;
+    }
+
+
+    public selectionMode () {
+        this._editorMode = Mode.SELECTION;
     }
 
 
     public setPixel (x: number, y: number): void {
-        const byte: number = ((y * (this._width / 8)) + Math.floor(x / 8));
-        const mask: number = 1 << (x % 8);
+        const byte: number = this._calculateByteFromCoords(x, y);
+        // const byte: number = ((y * (this._width / 8)) + Math.floor(x / 8));
+        const mask: number = this._calculateByteMask(x);
         this._data[byte] = this._data[byte] |= mask;
     }
 
 
     public unsetPixel (x: number, y: number): void {
-        const byte: number = ((y * (this._width / 8)) + Math.floor(x / 8));
-        const mask: number = 1 << (x % 8);
+        const byte: number = this._calculateByteFromCoords(x, y);
+        // const byte: number = ((y * (this._width / 8)) + Math.floor(x / 8));
+        const mask: number = this._calculateByteMask(x);
         this._data[byte] = this._data[byte] &= ~mask;
     }
 
 
+    public selectPixel (x: number, y: number): void {
+        const byte: number = this._calculateByteFromCoords(x, y);
+        // const byte: number = ((y * (this._width / 8)) + Math.floor(x / 8));
+        const mask: number = this._calculateByteMask(x);
+        this._selection[byte] = this._selection[byte] |= mask;
+    }
+
+
+    public deselectPixel (x: number, y: number): void {
+        const byte: number = this._calculateByteFromCoords(x, y);
+        // const byte: number = ((y * (this._width / 8)) + Math.floor(x / 8));
+        const mask: number = this._calculateByteMask(x);
+        this._selection[byte] = this._selection[byte] &= ~mask;
+    }
+
+
+    public deselectAll (): void {
+        this._selection = new Uint8Array((this._width / 8) * this._height);
+    }
+
+
     public resize (width: number = this._width, height: number = this._height): void {
-        this._data = new Uint8Array((width / 8) * height);
-        this._pixelWidth = this.canvasWidth / this._width;
-        this._pixelHeight = this.canvasHeight / this._height;
+        // TODO: Resize the data buffer
+        this._width = width;
+        this._height = height;
+        this._pixelWidth = this.canvasWidth / width;
+        this._pixelHeight = this.canvasHeight / height;
         this._redraw();
+    }
+
+
+    public loadFromData (data: Uint8Array, width: number, height: number) {
+        this._data = data;
+        this.resize(width, height);
+    }
+
+
+    public saveToFile (filename: string) {
+        const blob: Blob = new Blob([this._data], {type: "octet/stream"});
+        const url: string = window.URL.createObjectURL(blob);
+        this._downloadHelper.href = url;
+        this._downloadHelper.download = filename;
+        this._downloadHelper.click();
+        window.URL.revokeObjectURL(url);
     }
 
 
@@ -152,15 +240,67 @@ class BittMappEditor {
     }
 
 
+    private _calculateByteFromCoords (x: number, y: number): number {
+        return Math.floor(((y * this._width) + x) / 8);
+    }
+
+
+    private _calculateByteMask (x: number) {
+        return 1 << (x % 8);
+    }
+
+
+    private _calculateXFromMouseCoords (mouseX: number, round: any = Math.floor): number {
+        return round(mouseX / this._pixelWidth);
+    }
+
+
+    private _calculateYFromMouseCoords (mouseY: number, round: any = Math.floor): number {
+        return round(mouseY / this._pixelHeight);
+    }
+
+
     private _handleMouseEvent (event: MouseEvent, button: number): void {
 
-        const pixelX: number = Math.floor(event.offsetX / this._pixelWidth);
-        const pixelY: number = Math.floor(event.offsetY / this._pixelHeight);
+        let mouseX: number = this._calculateXFromMouseCoords(event.offsetX);
+        let mouseY: number = this._calculateYFromMouseCoords(event.offsetY);
 
-        if (button === MouseButton.LEFT) {
-            this.setPixel(pixelX, pixelY);
-        } else if (button === MouseButton.RIGHT) {
-            this.unsetPixel(pixelX, pixelY);
+        switch (this._editorMode) {
+            case Mode.PENCIL:
+
+                if (button === MouseButton.LEFT) {
+                    this.setPixel(mouseX, mouseY);
+                } else if (button === MouseButton.RIGHT) {
+                    this.unsetPixel(mouseX, mouseY);
+                }
+
+                break;
+            case Mode.ERASER:
+
+                if (button === MouseButton.LEFT) {
+                    this.unsetPixel(mouseX, mouseY);
+                } else if (button === MouseButton.RIGHT) {
+                    this.setPixel(mouseX, mouseY);
+                }
+
+                break;
+            case Mode.SELECTION:
+
+                // Only do this if Ctrl isn't pressed
+                mouseX = this._calculateXFromMouseCoords(event.offsetX, Math.ceil);
+                mouseY = this._calculateYFromMouseCoords(event.offsetY, Math.ceil);
+
+                this._selection = new Uint8Array((this._width / 8) * this._height);
+                this._selectionEndX = mouseX;
+                this._selectionEndY = mouseY;
+
+                for (let x: number = this._selectionStartX; x < this._selectionEndX; x++) {
+                    for (let y: number = this._selectionStartY; y < this._selectionEndY; y++) {
+                        this.selectPixel(x, y);
+                    }
+                }
+
+                break;
         }
 
         this._redraw();
@@ -168,9 +308,31 @@ class BittMappEditor {
     }
 
 
+    private _isSelected (x: number, y: number): boolean {
+        if (x < 0 || y < 0) {
+            return false;
+        } else if (x > this._width - 1 || y > this._height - 1) {
+            return false;
+        }
+
+        const byte: number = this._calculateByteFromCoords(x, y);
+        const mask: number = this._calculateByteMask(x);
+
+        if ((this._selection[byte] & mask) >= 1) {
+            return true;
+        }
+
+        return false;
+
+    }
+
+
     private _redraw (): void {
         this._drawGrid();
         this._drawPixels();
+        if (this._editorMode === Mode.SELECTION) {
+            this._drawSelection();
+        }
     }
 
 
@@ -235,6 +397,54 @@ class BittMappEditor {
 
                     }
                     byte = byte >> 1;
+                }
+
+            }
+        }
+
+    }
+
+
+    private _drawSelection (): void {
+
+        this._context.strokeStyle = "#FF0000";
+
+        for (let x: number = 0; x < this._width; x++) {
+            for (let y: number = 0; y < this._height; y++) {
+
+                const byte: number = this._calculateByteFromCoords(x, y);
+                const mask: number = this._calculateByteMask(x);
+
+                if (this._isSelected(x, y)) {
+
+                    if (!this._isSelected(x - 1, y)) {
+                        this._context.beginPath();
+                        this._context.moveTo(x * this._pixelWidth, y * this._pixelHeight);
+                        this._context.lineTo(x * this._pixelWidth, (y * this._pixelHeight) + this._pixelHeight);
+                        this._context.stroke();
+                    }
+
+                    if (!this._isSelected(x, y - 1)) {
+                        this._context.beginPath();
+                        this._context.moveTo(x * this._pixelWidth, y * this._pixelHeight);
+                        this._context.lineTo((x * this._pixelWidth) + this._pixelWidth, y * this._pixelHeight);
+                        this._context.stroke();
+                    }
+
+                    if (!this._isSelected(x + 1, y)) {
+                        this._context.beginPath();
+                        this._context.moveTo((x * this._pixelWidth) + this._pixelWidth, y * this._pixelHeight);
+                        this._context.lineTo((x * this._pixelWidth) + this._pixelWidth, (y * this._pixelHeight) + this._pixelHeight);
+                        this._context.stroke();
+                    }
+
+                    if (!this._isSelected(x, y + 1)) {
+                        this._context.beginPath();
+                        this._context.moveTo(x * this._pixelWidth, (y * this._pixelHeight) + this._pixelHeight);
+                        this._context.lineTo((x * this._pixelWidth) + this._pixelWidth, (y * this._pixelHeight) + this._pixelHeight);
+                        this._context.stroke();
+                    }
+
                 }
 
             }

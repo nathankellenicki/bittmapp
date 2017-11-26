@@ -1,13 +1,30 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
 <head>
     <title>BittMapp</title>
+    <link rel="stylesheet" href="./static/css/reset.css" />
+    <link rel="stylesheet" href="./static/css/styles.css" />
+    <script src="./static/js/serialisers.js"></script>
+    <script src="./static/js/bmptools.js"></script>
     <script src="./static/js/bittmappeditor.js"></script>
     <script src="./static/js/main.js"></script>
-    <link rel="stylesheet" href="./static/css/styles.css" />
 </head>
 <body>
+    <header>
+        <h2>Modes</h2>
+        <ul id="modes">
+            <li><a href="#" id="pencil_mode_button">Pencil Mode</a></li>
+            <li><a href="#" id="eraser_mode_button">Eraser Mode</a></li>
+            <li><a href="#" id="selection_mode_button">Selection Mode</a></li>
+        </ul>
+        <h2>File Options</h2>
+        <ul id="files">
+            <li><input type="text" id="open_file_pixelwidth_input" value="32" /> <input type="text" id="open_file_pixelheight_input" value="32" /> <a href="#" id="open_file_button">Open File</a></li>
+            <li><input type="text" id="filename_input" /> <a href="#" id="save_file_button">Save File</a></li>
+        </ul>
+    </header>
     <section id="main">
+        <h3>Editor</h3>
         <canvas id="editor"></canvas>
     </section>
 </body>
