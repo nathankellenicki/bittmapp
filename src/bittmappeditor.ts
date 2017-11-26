@@ -253,12 +253,12 @@ class BittMappEditor {
     }
 
 
-    private _calculateXFromMouseCoords (mouseX: number, round: any = Math.floor): number {
+    private _calculateXFromMouseCoords (mouseX: number, round: ((num: number) => number) = Math.floor): number {
         return round(mouseX / this._pixelWidth);
     }
 
 
-    private _calculateYFromMouseCoords (mouseY: number, round: any = Math.floor): number {
+    private _calculateYFromMouseCoords (mouseY: number, round: ((num: number) => number) = Math.floor): number {
         return round(mouseY / this._pixelHeight);
     }
 
