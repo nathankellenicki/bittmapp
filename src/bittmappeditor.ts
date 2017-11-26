@@ -40,6 +40,8 @@ class BittMappEditor {
     private _mouseDown: boolean = false;
     private _mouseButton: MouseButton;
 
+    private _shiftDown: boolean = false;
+
     private _selectionStartX: number = 0;
     private _selectionStartY: number = 0;
     private _selectionEndX: number = 0;
@@ -107,11 +109,36 @@ class BittMappEditor {
 
         this.resize();
 
-        this.canvas.addEventListener("contextmenu", (event) => {
+        this.canvas.addEventListener("contextmenu", (event: MouseEvent) => {
             event.preventDefault();
         });
 
-        this.canvas.addEventListener("mousedown", (event) => {
+        window.addEventListener("keydown", (event: KeyboardEvent) => {
+            switch (event.keyCode) {
+                case 16: // Shift
+                    this._shiftDown = true;
+                    break;
+            }
+        });
+
+        window.addEventListener("keyup", (event: KeyboardEvent) => {
+            switch (event.keyCode) {
+                case 16: // Shift
+                    this._shiftDown = false;
+                    break;
+                case 49: // 1
+                    this.pencilMode();
+                    break;
+                case 50: // 2
+                    this.eraserMode();
+                    break;
+                case 51: // 3
+                    this.selectionMode();
+                    break;
+            }
+        });
+
+        this.canvas.addEventListener("mousedown", (event: MouseEvent) => {
             this._mouseDown = true;
             this._mouseButton = event.button as MouseButton;
             this._selectionStartX = this._calculateXFromMouseCoords(event.offsetX);
@@ -119,17 +146,19 @@ class BittMappEditor {
             this._selectionEndX = this._selectionStartX + 1;
             this._selectionEndY = this._selectionStartY + 1;
             // NK: Only wipe selection if Ctrl isn't pressed
-            this._selection.fill(0x0);
+            if (!this._shiftDown) {
+                this._selection.fill(0x0);
+            }
             this._handleMouseEvent(event, this._mouseButton);
         });
 
-        this.canvas.addEventListener("mousemove", (event) => {
+        this.canvas.addEventListener("mousemove", (event: MouseEvent) => {
             if (this._mouseDown) {
                 this._handleMouseEvent(event, this._mouseButton);
             }
         });
 
-        this.canvas.addEventListener("mouseup", (event) => {
+        this.canvas.addEventListener("mouseup", (event: MouseEvent) => {
             this._mouseDown = false;
         });
 
@@ -290,21 +319,29 @@ class BittMappEditor {
             case Mode.SELECTION:
 
                 // Only do this if Ctrl isn't pressed
-                mouseX = this._calculateXFromMouseCoords(event.offsetX, Math.ceil);
-                mouseY = this._calculateYFromMouseCoords(event.offsetY, Math.ceil);
+                if (!this._shiftDown) {
+                    mouseX = this._calculateXFromMouseCoords(event.offsetX, Math.ceil);
+                    mouseY = this._calculateYFromMouseCoords(event.offsetY, Math.ceil);
 
-                this._selection.fill(0x0);
-                this._selectionEndX = mouseX;
-                this._selectionEndY = mouseY;
+                    this._selection.fill(0x0);
+                    this._selectionEndX = mouseX;
+                    this._selectionEndY = mouseY;
 
-                const startX: number = this._selectionEndX > this._selectionStartX ? this._selectionStartX : this._selectionEndX - 1;
-                const startY: number = this._selectionEndY > this._selectionStartY ? this._selectionStartY : this._selectionEndY - 1;
-                const endX: number = this._selectionEndX > this._selectionStartX ? this._selectionEndX : this._selectionStartX + 1;
-                const endY: number = this._selectionEndY > this._selectionStartY ? this._selectionEndY : this._selectionStartY + 1;
+                    const startX: number = this._selectionEndX > this._selectionStartX ? this._selectionStartX : this._selectionEndX - 1;
+                    const startY: number = this._selectionEndY > this._selectionStartY ? this._selectionStartY : this._selectionEndY - 1;
+                    const endX: number = this._selectionEndX > this._selectionStartX ? this._selectionEndX : this._selectionStartX + 1;
+                    const endY: number = this._selectionEndY > this._selectionStartY ? this._selectionEndY : this._selectionStartY + 1;
 
-                for (let x: number = startX; x < endX; x++) {
-                    for (let y: number = startY; y < endY; y++) {
-                        this.selectPixel(x, y);
+                    for (let x: number = startX; x < endX; x++) {
+                        for (let y: number = startY; y < endY; y++) {
+                            this.selectPixel(x, y);
+                        }
+                    }
+                } else {
+                    if (this._isSelected(mouseX, mouseY)) {
+                        this.deselectPixel(mouseX, mouseY);
+                    } else {
+                        this.selectPixel(mouseX, mouseY);
                     }
                 }
 
