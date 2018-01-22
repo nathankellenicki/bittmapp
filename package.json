@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "BittMapp - A monochrome bitmap editor",
   "scripts": {
-    "build": "tslint -c tslint.json \"src/**/*.ts\" && tsc"
+    "build": "rm static/js/*.js && tslint -c tslint.json \"src/**/*.ts\" && tsc && cat static/js/*.js > static/js/dist.js"
   },
   "author": "Nathan Kunicki <me@nathankunicki.com>",
   "license": "MIT",

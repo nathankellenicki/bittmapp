@@ -1,4 +1,4 @@
-interface IBittMappEditorConstructorOptions {
+interface IEditorConstructorOptions {
     canvas: HTMLCanvasElement;
     canvasWidth: number;
     canvasHeight: number;
@@ -20,7 +20,7 @@ enum Mode {
 }
 
 
-class BittMappEditor {
+class Editor {
 
 
     public canvasWidth: number;
@@ -55,7 +55,7 @@ class BittMappEditor {
     private _selection: Uint8Array;
 
 
-    constructor (options: IBittMappEditorConstructorOptions) {
+    constructor (options: IEditorConstructorOptions) {
 
         options = options || {};
 

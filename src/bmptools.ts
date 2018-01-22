@@ -15,11 +15,9 @@ interface IBMPHeaderData {
 
 
 interface IBittMappData {
-
     data: Uint8Array;
     width: number;
     height: number;
-
 }
 
 
