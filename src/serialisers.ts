@@ -18,4 +18,20 @@ class Serialisers {
         return new DataView(data.buffer).getUint16(start, littleEndian);
     }
 
+
+    public static reverseUint32BitOrder(data: number): number {
+        let i: number = 0;
+        let reversed: number = 0;
+        let last: number = 0;
+        while (i < 31) {
+            last = data & 1;
+            data >>= 1;
+            reversed += last;
+            reversed <<= 1;
+            i++;
+        }
+        return reversed;
+    }
+
+
 }

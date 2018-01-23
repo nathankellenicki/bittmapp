@@ -1,6 +1,6 @@
 window.onload = (): void => {
 
-    const editor: BittMappEditor = new BittMappEditor({
+    const editor: Editor = new Editor({
         canvas: document.getElementById("editor") as HTMLCanvasElement,
         canvasHeight: 480,
         canvasWidth: 480,
