@@ -1,4 +1,4 @@
-/* class ActionNode extends LinkedNode {
+class ActionNode extends LinkedNode {
 
 
     public undo: () => void;
@@ -12,4 +12,4 @@
     }
 
 
-} */
+}

@@ -1,4 +1,4 @@
-/* class ActionList extends LinkedList {
+class ActionList extends LinkedList {
 
 
     private _current: ActionNode;
@@ -9,4 +9,4 @@
     }
 
 
-} */
+}
