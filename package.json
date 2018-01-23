@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "BittMapp - A monochrome bitmap editor",
   "scripts": {
-    "build": "rm -rf static/js/*.js && tslint -c tslint.json \"src/**/*.ts\" && tsc && cat static/js/*.js > static/js/dist.js"
+    "build": "rm -rf static/js/*.js && tslint -c tslint.json \"src/**/*.ts\" && tsc && cat static/js/linkednode.js static/js/linkedlist.js static/js/actionnode.js static/js/actionlist.js static/js/bmptools.js static/js/editor.js static/js/serialisers.js static/js/main.js > static/js/dist.js"
   },
   "author": "Nathan Kunicki <me@nathankunicki.com>",
   "license": "MIT",
@@ -11,7 +11,7 @@
     "node": ">=8.9.1"
   },
   "devDependencies": {
-    "tslint": "^5.8.0",
-    "typescript": "^2.6.1"
+    "tslint": "^5.9.1",
+    "typescript": "^2.6.2"
   }
 }

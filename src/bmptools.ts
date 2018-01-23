@@ -30,8 +30,6 @@ class BMPTools {
         const pixelData: Uint8Array = inputData.slice(headerData.pixelDataOffset, headerData.fileLength);
         const rowSize: number = (headerData.width - 1 - (headerData.width - 1) % 32 + 32) / 8;
 
-        // console.log(headerData);
-
         const outputData: Uint8Array = new Uint8Array(Math.ceil((headerData.width * headerData.height) / 8));
 
         if (headerData.height > 0) {
@@ -100,7 +98,6 @@ class BMPTools {
             throw new Error("Data not valid (Only uncompressed data supported)");
         }
 
-        headerData.imageSize = Serialisers.readUint32(inputData, 34, true);
         headerData.imageSize = Serialisers.readUint32(inputData, 34, true);
         headerData.numberColors = Serialisers.readUint32(inputData, 46, true);
         headerData.importantColors = Serialisers.readUint32(inputData, 50, true);
