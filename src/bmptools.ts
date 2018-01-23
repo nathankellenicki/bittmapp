@@ -42,32 +42,14 @@ class BMPTools {
                     const inputByte: number = Math.floor(x / 8);
                     const outputByte: number = Math.floor((((headerData.height - 1 - y) * headerData.width) + x) / 8);
                     const inputMask: number = 1 << (x % 8);
-                    const outputMask: number = 1 << (bitCount % 8);
-                    const val: number = pixelData[rowStart + inputByte] & inputMask;
-                    // console.log(val);
+                    const val: number = Serialisers.reverseUint32BitOrder(~pixelData[rowStart + inputByte] & inputMask) >> 24;
                     outputData[outputByte] = val + outputData[outputByte];
-                    // console.log((rowStart + inputByte), inputMask, outputByte, outputMask);
                     bitCount++;
                 }
             }
-        } /* else {
-            let bitCount: number = 0;
-            for (let y: number = 0; y < headerData.height; y++) {
-                const rowStart: number = rowSize * y;
-                console.log(pixelData[rowStart], pixelData[rowStart + 1], pixelData[rowStart + 2], pixelData[rowStart + 3]);
-                for (let x: number = 0; x < headerData.width; x++) {
-                    const inputByte: number = Math.floor(x / 8);
-                    const outputByte: number = Math.floor(((y * headerData.width) + x) / 8);
-                    const inputMask: number = 1 << (x % 8);
-                    const outputMask: number = 1 << (bitCount % 8);
-                    let val: number = pixelData[rowStart + inputByte];
-                    console.log(val);
-                    //outputData[outputByte] = val |= outputMask;
-                    console.log((rowStart + inputByte), inputMask, outputByte, outputMask);
-                    bitCount++;
-                }
-            }
-        }*/
+        } else {
+            throw new Error("Cannot read bitmaps of inverted height");
+        }
 
         return {
             data: outputData,
@@ -99,6 +81,10 @@ class BMPTools {
         headerData.headerLength = Serialisers.readUint32(inputData, 14, true);
         headerData.width = Serialisers.readUint32(inputData, 18, true);
         headerData.height = Serialisers.readInt32(inputData, 22, true);
+        if (headerData.height <= 0) {
+            throw new Error("Cannot read bitmaps of inverted height");
+        }
+
         headerData.planes = Serialisers.readUint16(inputData, 26, true);
         if (headerData.planes !== 1) {
             throw new Error("Data not valid (Only one plane supported)");
